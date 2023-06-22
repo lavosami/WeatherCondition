@@ -19,27 +19,15 @@ public class Data {
         data = new HashMap<>();
     }
 
-    public void add(String str, double val) {
-        data.put(str, val);
-    }
+    public void add(String str, double val) { data.put(str, val); }
 
-    public double getValue(String param) {
-        return data.get(param);
-    }
+    public double getValue(String param) { return data.get(param); }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public void setName(String name) { this.name = name; }
 
-    public String getName() {
-        return name;
-    }
+    public String getName() { return name; }
 
-    public void setSerial(String serial) {
-        this.serial = serial;
-    }
+    public void setSerial(String serial) { this.serial = serial; }
 
-    public String getSerial() {
-        return serial;
-    }
+    public String getSerial() { return serial; }
 }
