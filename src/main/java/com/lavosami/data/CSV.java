@@ -37,14 +37,7 @@ public class CSV {
             values = Arrays.toString(list.get(i)).split(";");
 
             for (int j = 1; j < values.length-1; ++j) {
-                double value = 0;
-
-                try {
-                    value = Double.parseDouble(values[j]);
-                } catch (NumberFormatException e) {
-                    throw new RuntimeException(e);
-                }
-
+                double value = Double.parseDouble(values[j]);
                 data.add(array[j], value);
             }
 
@@ -54,10 +47,5 @@ public class CSV {
 
             DataBase.add(date, data);
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-        parse("/Users/lavosami/Downloads/CSV/POCA_K-2_(1).csv");
-        DataBase.print();
     }
 }
