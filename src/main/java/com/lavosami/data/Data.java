@@ -4,18 +4,15 @@ import java.util.HashMap;
 
 public class Data {
     private String name;
-    private String serial;
     private HashMap<String, Double> data;
 
     public Data() {
         name = "deviceName";
-        serial = "deviceSerial";
         data = new HashMap<>();
     }
 
-    public Data(String name, String serial) {
+    public Data(String name) {
         setName(name);
-        setSerial(serial);
         data = new HashMap<>();
     }
 
@@ -26,8 +23,4 @@ public class Data {
     public void setName(String name) { this.name = name; }
 
     public String getName() { return name; }
-
-    public void setSerial(String serial) { this.serial = serial; }
-
-    public String getSerial() { return serial; }
 }
