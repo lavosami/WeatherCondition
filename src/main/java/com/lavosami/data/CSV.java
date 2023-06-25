@@ -2,6 +2,7 @@ package com.lavosami.data;
 
 import com.opencsv.CSVReader;
 
+import java.io.File;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -11,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class CSV {
 
@@ -22,7 +24,7 @@ public class CSV {
         }
     }
 
-    public static void parse(String path) throws Exception {
+    private static void parse(String path) throws Exception {
         List<String[]> list = readAllLines(Path.of(path));
 
         String[] array = Arrays.toString(list.get(0)).split(";");
@@ -46,6 +48,13 @@ public class CSV {
             Date date = formatter.parse(values[0]);
 
             DataBase.add(date, data);
+        }
+    }
+
+    public static void filesParse() throws Exception {
+        File dir = new File("/src/main/resources/templates/CSV/");
+        for (File file : Objects.requireNonNull(dir.listFiles())) {
+            parse(file.getPath());
         }
     }
 }
