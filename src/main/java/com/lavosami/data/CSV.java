@@ -3,6 +3,7 @@ package com.lavosami.data;
 import com.opencsv.CSVReader;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -52,9 +53,17 @@ public class CSV {
     }
 
     public static void filesParse() throws Exception {
-        File dir = new File("/src/main/resources/templates/CSV/");
-        for (File file : Objects.requireNonNull(dir.listFiles())) {
-            parse(file.getPath());
+        File dir = new File("src/main/resources/templates/CSV");
+        File[] directoryListing = dir.listFiles();
+        if (directoryListing != null) {
+            for (File child : directoryListing) {
+                parse(child.getPath());
+            }
         }
+    }
+
+    public static void main(String[] args) throws Exception {
+        filesParse();
+        DataBase.print();
     }
 }
