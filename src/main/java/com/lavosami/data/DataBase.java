@@ -18,26 +18,26 @@ public class DataBase {
      * @param mode - 1: hour, 2: three hours, 3: 24 hours, 4: min/max
      * @return - treemap w/ required averaged values
      */
-    public static TreeMap<Date, Double> averagedValue(String key, int mode) {
+    public static TreeMap<Date, Double> averagedValue(String name, String key, int mode) {
         JSON.filesParse();
         TreeMap<Date, Double> averaged;
 
         switch (mode) {
-            case 1 -> averaged = averageByHour(key);
+            case 1 -> averaged = averageByHour(name, key);
 
-            case 2 -> averaged = averageByThreeHours(key);
+            case 2 -> averaged = averageByThreeHours(name, key);
 
-            case 3 -> averaged = averageBy24Hours(key);
+            case 3 -> averaged = averageBy24Hours(name, key);
 
-            case 4 -> averaged = calculateMinMaxValues(key);
+            case 4 -> averaged = calculateMinMaxValues(name, key);
 
-            default -> averaged = dataToDouble(key);
+            default -> averaged = dataToDouble(name, key);
         }
 
         return averaged;
     }
 
-    private static TreeMap<Date, Double> averageByHour(String key) {
+    private static TreeMap<Date, Double> averageByHour(String name, String key) {
         TreeMap<Date, Double> averagedMap = new TreeMap<>();
 
         Calendar calendar = Calendar.getInstance();
@@ -46,18 +46,20 @@ public class DataBase {
 
         Map<Date, List<Double>> hourlyValues = new HashMap<>();
 
-        TreeMap<Date, Double> temp = dataToDouble(key);
+        TreeMap<Date, Double> temp = dataToDouble(name, key);
 
         for (Map.Entry<Date, Double> entry : temp.entrySet()) {
             Date date = entry.getKey();
             Double value = entry.getValue();
 
-            calendar.setTime(date);
-            calendar.set(Calendar.MINUTE, 0);
-            calendar.set(Calendar.SECOND, 0);
-            Date hourStart = calendar.getTime();
+            if (value != null && !Double.isNaN(value)) {
+                calendar.setTime(date);
+                calendar.set(Calendar.MINUTE, 0);
+                calendar.set(Calendar.SECOND, 0);
+                Date hourStart = calendar.getTime();
 
-            hourlyValues.computeIfAbsent(hourStart, k -> new ArrayList<>()).add(value);
+                hourlyValues.computeIfAbsent(hourStart, k -> new ArrayList<>()).add(value);
+            }
         }
 
         for (Map.Entry<Date, List<Double>> entry : hourlyValues.entrySet()) {
@@ -76,7 +78,7 @@ public class DataBase {
         return averagedMap;
     }
 
-    private static TreeMap<Date, Double> averageByThreeHours(String key) {
+    private static TreeMap<Date, Double> averageByThreeHours(String name, String key) {
         TreeMap<Date, Double> averagedMap = new TreeMap<>();
 
         Calendar calendar = Calendar.getInstance();
@@ -85,22 +87,24 @@ public class DataBase {
 
         Map<Date, List<Double>> threeHourlyValues = new HashMap<>();
 
-        TreeMap<Date, Double> temp = dataToDouble(key);
+        TreeMap<Date, Double> temp = dataToDouble(name, key);
 
         for (Map.Entry<Date, Double> entry : temp.entrySet()) {
             Date date = entry.getKey();
             double value = entry.getValue();
 
-            calendar.setTime(date);
-            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-            int threeHourBlock = hour / 3;
+            if (!Double.isNaN(value)) {
+                calendar.setTime(date);
+                int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                int threeHourBlock = hour / 3;
 
-            calendar.set(Calendar.HOUR_OF_DAY, threeHourBlock * 3);
-            calendar.set(Calendar.MINUTE, 0);
-            calendar.set(Calendar.SECOND, 0);
-            Date threeHourBlockStart = calendar.getTime();
+                calendar.set(Calendar.HOUR_OF_DAY, threeHourBlock * 3);
+                calendar.set(Calendar.MINUTE, 0);
+                calendar.set(Calendar.SECOND, 0);
+                Date threeHourBlockStart = calendar.getTime();
 
-            threeHourlyValues.computeIfAbsent(threeHourBlockStart, k -> new ArrayList<>()).add(value);
+                threeHourlyValues.computeIfAbsent(threeHourBlockStart, k -> new ArrayList<>()).add(value);
+            }
         }
 
         for (Map.Entry<Date, List<Double>> entry : threeHourlyValues.entrySet()) {
@@ -119,7 +123,7 @@ public class DataBase {
         return averagedMap;
     }
 
-    private static TreeMap<Date, Double> averageBy24Hours(String key) {
+    private static TreeMap<Date, Double> averageBy24Hours(String name, String key) {
         TreeMap<Date, Double> averagedMap = new TreeMap<>();
 
         Calendar calendar = Calendar.getInstance();
@@ -129,19 +133,21 @@ public class DataBase {
 
         Map<Date, List<Double>> dailyValues = new HashMap<>();
 
-        TreeMap<Date, Double> temp = dataToDouble(key);
+        TreeMap<Date, Double> temp = dataToDouble(name, key);
 
         for (Map.Entry<Date, Double> entry : temp.entrySet()) {
             Date date = entry.getKey();
             double value = entry.getValue();
 
-            calendar.setTime(date);
-            calendar.set(Calendar.HOUR_OF_DAY, 0);
-            calendar.set(Calendar.MINUTE, 0);
-            calendar.set(Calendar.SECOND, 0);
-            Date dayStart = calendar.getTime();
+            if (!Double.isNaN(value)) {
+                calendar.setTime(date);
+                calendar.set(Calendar.HOUR_OF_DAY, 0);
+                calendar.set(Calendar.MINUTE, 0);
+                calendar.set(Calendar.SECOND, 0);
+                Date dayStart = calendar.getTime();
 
-            dailyValues.computeIfAbsent(dayStart, k -> new ArrayList<>()).add(value);
+                dailyValues.computeIfAbsent(dayStart, k -> new ArrayList<>()).add(value);
+            }
         }
 
         for (Map.Entry<Date, List<Double>> entry : dailyValues.entrySet()) {
@@ -160,7 +166,7 @@ public class DataBase {
         return averagedMap;
     }
 
-    private static TreeMap<Date, Double> calculateMinMaxValues(String key) {
+    private static TreeMap<Date, Double> calculateMinMaxValues(String name, String key) {
         TreeMap<Date, Double> minMaxValues = new TreeMap<>();
 
         Calendar calendar = Calendar.getInstance();
@@ -174,42 +180,43 @@ public class DataBase {
         double minValue = Double.MAX_VALUE;
         double maxValue = Double.MIN_VALUE;
 
-        TreeMap<Date, Double> temp = dataToDouble(key);
+        TreeMap<Date, Double> temp = dataToDouble(name, key);
 
         for (Map.Entry<Date, Double> entry : temp.entrySet()) {
             Date currentDate = entry.getKey();
             double value = entry.getValue();
 
-            calendar.setTime(currentDate);
-            calendar.set(Calendar.HOUR_OF_DAY, 0);
-            calendar.set(Calendar.MINUTE, 0);
-            calendar.set(Calendar.SECOND, 0);
-            Date currentDay = calendar.getTime();
+            if (!Double.isNaN(value)) {
+                calendar.setTime(currentDate);
+                calendar.set(Calendar.HOUR_OF_DAY, 0);
+                calendar.set(Calendar.MINUTE, 0);
+                calendar.set(Calendar.SECOND, 0);
+                Date currentDay = calendar.getTime();
 
-            if (previousDate != null && !currentDay.equals(previousDate)) {
-                if (minTime != null && maxTime != null) {
-                    minMaxValues.put(minTime, minValue);
-                    minMaxValues.put(maxTime, maxValue);
+                if (previousDate != null && !currentDay.equals(previousDate)) {
+                    if (minTime != null && maxTime != null) {
+                        minMaxValues.put(minTime, minValue);
+                        minMaxValues.put(maxTime, maxValue);
+                    }
+                    minValue = Double.MAX_VALUE;
+                    maxValue = Double.MIN_VALUE;
+                    minTime = null;
+                    maxTime = null;
                 }
-                minValue = Double.MAX_VALUE;
-                maxValue = Double.MIN_VALUE;
-                minTime = null;
-                maxTime = null;
-            }
 
-            if (value < minValue) {
-                minValue = value;
-                minTime = currentDate;
-            }
-            if (value > maxValue) {
-                maxValue = value;
-                maxTime = currentDate;
-            }
+                if (value < minValue) {
+                    minValue = value;
+                    minTime = currentDate;
+                }
+                if (value > maxValue) {
+                    maxValue = value;
+                    maxTime = currentDate;
+                }
 
-            previousDate = currentDay;
+                previousDate = currentDay;
+            }
         }
 
-        // Добавление минимума и максимума для последнего дня
         if (previousDate != null && minTime != null && maxTime != null) {
             minMaxValues.put(minTime, minValue);
             minMaxValues.put(maxTime, maxValue);
@@ -218,21 +225,17 @@ public class DataBase {
         return minMaxValues;
     }
 
-
-    private static TreeMap<Date, Double> dataToDouble(String key) {
+    private static TreeMap<Date, Double> dataToDouble(String name, String key) {
         TreeMap<Date, Double> doubleTreeMap = new TreeMap<>();
+        TreeMap<Date, Data> temp = new TreeMap<>();
 
         dataBase.forEach((k, v) -> {
             try {
-                doubleTreeMap.put(k, v.getValue(key));
+                double value = v.getName().equals(name) ? v.getValue(key) : Double.NaN;
+                doubleTreeMap.put(k, value);
             } catch (Exception ignored) {}
         });
 
         return doubleTreeMap;
-    }
-
-    public static void main(String[] args) {
-        TreeMap<Date, Double> averaged = averagedValue("weather_pressure", 3);
-        System.out.println(averaged);
     }
 }

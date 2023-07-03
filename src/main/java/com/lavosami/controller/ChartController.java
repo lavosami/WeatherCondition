@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Controller
 public class ChartController {
@@ -17,16 +16,18 @@ public class ChartController {
         Map<String, Object> chartData = new HashMap<>();
 
         // Создайте примерный набор данных
-        Map<Date, Double> data = DataBase.averagedValue("weather_temp", 0);
+        Map<Date, Double> data = DataBase.averagedValue("Hydra-L", "BME280_temp", 1);
         // Заполните Map с вашими данными
 
         // Преобразуйте ключи Date в строки с помощью SimpleDateFormat
         List<String> xData = data.keySet().stream()
+                .filter(date -> !Double.isNaN(data.get(date)))
                 .map(date -> new SimpleDateFormat("yyyy-MM-dd").format(date))
                 .toList();
 
-        // Получите значения из Map
+        // Получите значения из Map, исключая NaN
         List<String> yData = data.values().stream()
+                .filter(value -> !Double.isNaN(value))
                 .map(String::valueOf)
                 .toList();
 
@@ -38,6 +39,5 @@ public class ChartController {
 
         return "chart";
     }
-
 
 }
