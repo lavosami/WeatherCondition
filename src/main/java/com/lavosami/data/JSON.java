@@ -41,7 +41,7 @@ public class JSON {
         }
     }
 
-    public static void filesParse() throws Exception {
+    public static void filesParse() {
         File dir = new File("src/main/resources/templates/JSON");
         File[] directoryListing = dir.listFiles();
         if (directoryListing != null) {
@@ -51,7 +51,7 @@ public class JSON {
         }
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         filesParse();
         DataBase.print();
     }

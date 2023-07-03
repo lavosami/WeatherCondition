@@ -19,8 +19,8 @@ public class DataBase {
      * @return - treemap w/ required averaged values
      */
     public static TreeMap<Date, Double> averagedValue(String key, int mode) {
-        TreeMap<Date, Double> averaged = new TreeMap<>();
-        TreeMap<Date, Double> finalAveraged = averaged;
+        JSON.filesParse();
+        TreeMap<Date, Double> averaged;
 
         switch (mode) {
             case 1 -> averaged = averageByHour(key);
@@ -31,11 +31,7 @@ public class DataBase {
 
             case 4 -> averaged = calculateMinMaxValues(key);
 
-            default -> dataBase.forEach((k, v) -> {
-                try {
-                    finalAveraged.put(k, v.getValue(key));
-                } catch (Exception ignored) {}
-            });
+            default -> averaged = dataToDouble(key);
         }
 
         return averaged;
@@ -97,7 +93,7 @@ public class DataBase {
 
             calendar.setTime(date);
             int hour = calendar.get(Calendar.HOUR_OF_DAY);
-            int threeHourBlock = hour / 3; // Группировка по трехчасовым блокам
+            int threeHourBlock = hour / 3;
 
             calendar.set(Calendar.HOUR_OF_DAY, threeHourBlock * 3);
             calendar.set(Calendar.MINUTE, 0);
@@ -167,22 +163,61 @@ public class DataBase {
     private static TreeMap<Date, Double> calculateMinMaxValues(String key) {
         TreeMap<Date, Double> minMaxValues = new TreeMap<>();
 
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+
+        Date previousDate = null;
+        Date minTime = null;
+        Date maxTime = null;
         double minValue = Double.MAX_VALUE;
         double maxValue = Double.MIN_VALUE;
 
         TreeMap<Date, Double> temp = dataToDouble(key);
 
         for (Map.Entry<Date, Double> entry : temp.entrySet()) {
+            Date currentDate = entry.getKey();
             double value = entry.getValue();
-            minValue = Math.min(minValue, value);
-            maxValue = Math.max(maxValue, value);
+
+            calendar.setTime(currentDate);
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            Date currentDay = calendar.getTime();
+
+            if (previousDate != null && !currentDay.equals(previousDate)) {
+                if (minTime != null && maxTime != null) {
+                    minMaxValues.put(minTime, minValue);
+                    minMaxValues.put(maxTime, maxValue);
+                }
+                minValue = Double.MAX_VALUE;
+                maxValue = Double.MIN_VALUE;
+                minTime = null;
+                maxTime = null;
+            }
+
+            if (value < minValue) {
+                minValue = value;
+                minTime = currentDate;
+            }
+            if (value > maxValue) {
+                maxValue = value;
+                maxTime = currentDate;
+            }
+
+            previousDate = currentDay;
         }
 
-        minMaxValues.put(dataBase.firstKey(), minValue);
-        minMaxValues.put(dataBase.lastKey(), maxValue);
+        // Добавление минимума и максимума для последнего дня
+        if (previousDate != null && minTime != null && maxTime != null) {
+            minMaxValues.put(minTime, minValue);
+            minMaxValues.put(maxTime, maxValue);
+        }
 
         return minMaxValues;
     }
+
 
     private static TreeMap<Date, Double> dataToDouble(String key) {
         TreeMap<Date, Double> doubleTreeMap = new TreeMap<>();
@@ -197,8 +232,7 @@ public class DataBase {
     }
 
     public static void main(String[] args) {
-        // Пример использования
-        TreeMap<Date, Double> averaged = averagedValue("someKey", 1);
+        TreeMap<Date, Double> averaged = averagedValue("weather_pressure", 3);
         System.out.println(averaged);
     }
 }

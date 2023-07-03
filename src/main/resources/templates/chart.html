@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Weather Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.2.2/dist/echarts.min.js"></script>
+</head>
+<body>
+<div id="categoryChartContainer" style="width: 100%; min-height: 400px"></div>
+
+<script type="text/javascript">
+    var chartData = {
+        xData: "[[${chartData.xData}]]",
+        yData: "[[${chartData.yData}]]"
+    };
+
+    var xData = chartData.xData.split(',');
+    var yData = chartData.yData.split(',');
+
+    var chart = echarts.init(document.getElementById('categoryChartContainer'));
+    var option = {
+        xAxis: {
+            type: 'category',
+            data: xData
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [{
+            data: yData,
+            type: 'line'
+        }]
+    };
+    chart.setOption(option);
+</script>
+
+</body>
+</html>
