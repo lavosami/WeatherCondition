@@ -19,7 +19,6 @@ public class DataBase {
      * @return - treemap w/ required averaged values
      */
     public static TreeMap<Date, Double> averagedValue(String name, String key, int mode) {
-        JSON.filesParse();
         TreeMap<Date, Double> averaged;
 
         switch (mode) {

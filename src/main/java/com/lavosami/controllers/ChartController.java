@@ -16,10 +16,10 @@ import static com.lavosami.data.DataBase.dataBase;
 public class ChartController {
     @GetMapping("/chart")
     public String getChartData(Model model) {
+        JSON.filesParse();
 
         // --------------------------------------------
         List<String> items = new ArrayList<>();
-        JSON.filesParse();
         for (Data data : dataBase.values()) {
             if (!items.contains(data.getName())) {
                 items.add(data.getName());
@@ -30,9 +30,17 @@ public class ChartController {
         // --------------------------------------------
 
         // --------------------------------------------
+        List<String> values = new ArrayList<>();
+        values.add("Temperature");
+        values.add("Pressure");
+        values.add("Humidity");
+        model.addAttribute("chartValues", values);
+        // --------------------------------------------
+
+        // --------------------------------------------
         Map<String, Object> chartData = new HashMap<>();
 
-        Map<Date, Double> data = DataBase.averagedValue("Hydra-L (04)", "BME280_temp", 3);
+        Map<Date, Double> data = DataBase.averagedValue("Hydra-L (04)", "Temperature", 3);
 
         List<String> xData = data.keySet().stream()
                 .filter(date -> !Double.isNaN(data.get(date)))

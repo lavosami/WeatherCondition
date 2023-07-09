@@ -3,7 +3,6 @@ package com.lavosami.data;
 import com.opencsv.CSVReader;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -41,7 +40,42 @@ public class CSV {
 
             for (int j = 1; j < values.length-1; ++j) {
                 double value = Double.parseDouble(values[j]);
-                data.add(array[j], value);
+
+                if (data.getName().contains("Тест Студии") || data.getName().contains("Hydra-L") || data.getName().contains("Hydra-L1") || data.getName().contains("Тест воздуха"))
+                    try {
+                        if (Objects.equals(array[j], "BME280_temp"))
+                            data.add("Temperature", value);
+                        if (Objects.equals(array[j], "BME280_pressure"))
+                            data.add("Pressure", value);
+                        if (Objects.equals(array[j], "BME280_humidity"))
+                            data.add("Humidity", value);
+                    } catch (NumberFormatException ignored) {}
+
+                if (data.getName().contains("Паскаль") || data.getName().contains("Опорный барометр"))
+                    try {
+                        if (Objects.equals(array[j], "weather_temp"))
+                            data.add("Temperature", value);
+                        if (Objects.equals(array[j], "weather_pressure"))
+                            data.add("Pressure", value);
+                    } catch (NumberFormatException ignored) {}
+
+                if (data.getName().contains("Тест СБ"))
+                    try {
+                        if (Objects.equals(array[j], "weather_temp"))
+                            data.add("Temperature", value);
+                        if (Objects.equals(array[j], "weather_humidity"))
+                            data.add("Humidity", value);
+                    } catch (NumberFormatException ignored) {}
+
+                if (data.getName().contains("РОСА К-2"))
+                    try {
+                        if (Objects.equals(array[j], "weather_temp"))
+                            data.add("Temperature", value);
+                        if (Objects.equals(array[j], "weather_pressure"))
+                            data.add("Pressure", value);
+                        if (Objects.equals(array[j], "weather_humidity"))
+                            data.add("Humidity", value);
+                    } catch (NumberFormatException ignored) {}
             }
 
             DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
