@@ -1,13 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="">
 <head>
     <meta charset="UTF-8">
     <title>Weather Chart</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.2.2/dist/echarts.min.js"></script>
+    <style>
+        h1 {
+            color: #5670BC;
+        }
+        body {
+            font-family: "Helvetica", "Sans-Serif";
+            color: #65666B;
+        }
+        </style>
 </head>
 <body>
-<div id="categoryChartContainer" style="width: 100%; min-height: 400px"></div>
+<h1>Weather's charts</h1>
 
+<ul>
+    <block th:each="item : ${chartItems}">
+        <li th:text="${item}">
+            <label>
+                <input type="checkbox">
+            </label>
+        </li>
+    </block>
+</ul>
+
+<br>
+
+<ul>
+    <block th:each="device : ${chartItems}">
+        <li th:text="${device}">
+            <label>
+
+            </label>
+        </li>
+    </block>
+</ul>
+
+<div id="categoryChartContainer" style="width: 100%; min-height: 400px"></div>
 <script type="text/javascript">
     var chartData = {
         xData: "[[${chartData.xData}]]",

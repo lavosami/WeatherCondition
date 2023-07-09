@@ -11,6 +11,7 @@ import java.io.Reader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 
 public class JSON {
     private static void parse(String path) {
@@ -20,15 +21,47 @@ public class JSON {
             JSONObject jsonObject = (JSONObject) parser.parse(new FileReader(path));
             for (Object obj : jsonObject.values()) {
                 JSONObject o = (JSONObject) obj;
-                Data data = new Data((String) o.get("uName"));
+                Data data = new Data(o.get("uName") + " (" + o.get("serial") + ")");
 
                 JSONObject values = (JSONObject) o.get("data");
                 String[] keys = (String[]) (values.keySet()).toArray(new String[values.keySet().size()]);
 
                 for (String key : keys) {
-                    try {
-                        data.add(key, Double.parseDouble((String) values.get(key)));
-                    } catch (NumberFormatException ignored) {}
+                    if (data.getName().contains("Тест Студии") || data.getName().contains("Hydra-L") || data.getName().contains("Hydra-L1") || data.getName().contains("Тест воздуха"))
+                        try {
+                            if (Objects.equals(key, "BME280_temp"))
+                                data.add("Temperature", Double.parseDouble((String) values.get(key)));
+                            if (Objects.equals(key, "BME280_pressure"))
+                                data.add("Pressure", Double.parseDouble((String) values.get(key)));
+                            if (Objects.equals(key, "BME280_humidity"))
+                                data.add("Humidity", Double.parseDouble((String) values.get(key)));
+                        } catch (NumberFormatException ignored) {}
+
+                    if (data.getName().contains("Паскаль") || data.getName().contains("Опорный барометр"))
+                        try {
+                            if (Objects.equals(key, "weather_temp"))
+                                data.add("Temperature", Double.parseDouble((String) values.get(key)));
+                            if (Objects.equals(key, "weather_pressure"))
+                                data.add("Pressure", Double.parseDouble((String) values.get(key)));
+                        } catch (NumberFormatException ignored) {}
+
+                    if (data.getName().contains("Тест СБ"))
+                        try {
+                            if (Objects.equals(key, "weather_temp"))
+                                data.add("Temperature", Double.parseDouble((String) values.get(key)));
+                            if (Objects.equals(key, "weather_humidity"))
+                                data.add("Humidity", Double.parseDouble((String) values.get(key)));
+                        } catch (NumberFormatException ignored) {}
+
+                    if (data.getName().contains("РОСА К-2"))
+                        try {
+                            if (Objects.equals(key, "weather_temp"))
+                                data.add("Temperature", Double.parseDouble((String) values.get(key)));
+                            if (Objects.equals(key, "weather_pressure"))
+                                data.add("Pressure", Double.parseDouble((String) values.get(key)));
+                            if (Objects.equals(key, "weather_humidity"))
+                                data.add("Humidity", Double.parseDouble((String) values.get(key)));
+                        } catch (NumberFormatException ignored) {}
                 }
 
                 DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
