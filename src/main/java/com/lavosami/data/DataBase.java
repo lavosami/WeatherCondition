@@ -226,7 +226,6 @@ public class DataBase {
 
     private static TreeMap<Date, Double> dataToDouble(String name, String key) {
         TreeMap<Date, Double> doubleTreeMap = new TreeMap<>();
-        TreeMap<Date, Data> temp = new TreeMap<>();
 
         dataBase.forEach((k, v) -> {
             try {

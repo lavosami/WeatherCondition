@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Weather Chart</title>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.2.2/dist/echarts.min.js"></script>
     <style>
         h1 {
             color: #5670BC;
@@ -12,59 +11,139 @@
             font-family: "Helvetica", "Sans-Serif";
             color: #65666B;
         }
-        </style>
+        .fieldset-container {
+          display: flex;
+        }
+        .fieldset-container fieldset {
+          flex: 1;
+        }
+        input {
+            margin: 0.4rem;
+        }
+
+        .radio-container {
+            display: inline-block;
+            margin-right: 10px;
+          }
+
+          /* Стили для fieldset */
+          fieldset {
+            padding: 0;
+            margin: 0;
+            display: inline-block;
+          }
+    </style>
 </head>
 <body>
 <h1>Weather's charts</h1>
 
-<ul>
-    <block th:each="item : ${chartItems}">
-        <li th:text="${item}">
-            <label>
-                <input type="checkbox">
-            </label>
-        </li>
-    </block>
-</ul>
-
+<fieldset>
+    <legend>Select device:</legend>
+    <div th:each="item : ${chartItems}" class="radio-container">
+        <input type="radio" th:id="${item}" name="item" th:value="${item}">
+        <label th:for="${item}" th:text="${item}"></label>
+    </div>
+</fieldset>
 <br>
+<div class="fieldset-container">
+    <fieldset>
+        <legend>Select values type:</legend>
+        <div th:each="value : ${chartValues}">
+            <input type="radio" th:id="${value}" name="value" th:value="${value}">
+            <label th:for="${value}" th:text="${value}"></label>
+        </div>
+    </fieldset>
 
-<ul>
-    <block th:each="value : ${chartValues}">
-        <li th:text="${value}">
-            <label>
+    <fieldset>
+        <legend>Select type of parse file:</legend>
+        <div th:each="parse : ${chartParser}">
+            <input type="radio" th:id="${parse}" name="parse" th:value="${parse}">
+            <label th:for="${parse}" th:text="${parse}"></label>
+        </div>
+    </fieldset>
 
-            </label>
-        </li>
-    </block>
-</ul>
+    <fieldset>
+        <legend>Select averaging:</legend>
+        <div th:each="averaging : ${chartAveraging}">
+            <input type="radio" th:id="${averaging}" name="averaging" th:value="${averaging}">
+            <label th:for="${averaging}" th:text="${averaging}"></label>
+        </div>
+    </fieldset>
+</div>
+
+<button id="updateButton">Draw charts</button>
 
 <div id="categoryChartContainer" style="width: 100%; min-height: 400px"></div>
-<script type="text/javascript">
-    var chartData = {
-        xData: "[[${chartData.xData}]]",
-        yData: "[[${chartData.yData}]]"
-    };
+<div id="barChartContainer" style="width: 100%; min-height: 400px"></div>
 
-    var xData = chartData.xData.split(',');
-    var yData = chartData.yData.split(',');
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.2.2/dist/echarts.min.js"></script>
+<script th:inline="javascript">
+    function updateChartData() {
+        var selectedDevice = $("input[name='item']:checked").val();
+        var selectedValue = $("input[name='value']:checked").val();
+        var selectedParser = $("input[name='parse']:checked").val();
+        var selectedAveraging = $("input[name='averaging']:checked").val();
 
-    var chart = echarts.init(document.getElementById('categoryChartContainer'));
-    var option = {
-        xAxis: {
-            type: 'category',
-            data: xData
-        },
-        yAxis: {
-            type: 'value'
-        },
-        series: [{
-            data: yData,
-            type: 'line'
-        }]
-    };
-    chart.setOption(option);
+        $.ajax({
+            type: "POST",
+            url: '/chart',
+            data: {
+                item: selectedDevice,
+                value: selectedValue,
+                parse: selectedParser,
+                averaging: selectedAveraging
+            },
+            success: function(data) {
+                $.get('/getXData', function(xData) {
+                    $.get('/getYData', function(yData) {
+                        var categoryChart = echarts.init(document.getElementById('categoryChartContainer'));
+                        var categoryOption = {
+                            xAxis: {
+                                type: 'category',
+                                data: xData
+                            },
+                            yAxis: {
+                                type: 'value'
+                            },
+                            series: [{
+                                data: yData,
+                                type: 'line'
+                            }]
+                        };
+                        categoryChart.setOption(categoryOption);
+
+                        var barChart = echarts.init(document.getElementById('barChartContainer'));
+                        var barOption = {
+                            xAxis: {
+                                type: 'category',
+                                data: xData
+                            },
+                            yAxis: {
+                                type: 'value'
+                            },
+                            series: [{
+                                data: yData,
+                                type: 'bar'
+                            }]
+                        };
+                        barChart.setOption(barOption);
+                    });
+                });
+            },
+            error: function(error) {
+                console.log("Error updating chart data:", error);
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        $("#updateButton").click(function() {
+            updateChartData();
+        });
+    });
 </script>
+
 
 </body>
 </html>
