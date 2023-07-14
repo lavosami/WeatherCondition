@@ -13,6 +13,72 @@ public class DataBase {
         dataBase.forEach((key, value) -> System.out.println(key + " " + value));
     }
 
+    public static TreeMap<Date, Double> averagedEffectiveTemperature(String name, int mode, Date startDate, Date endDate) {
+        TreeMap<Date, Double> averaged = new TreeMap<>();
+
+        TreeMap<Date, Double> t1;
+        TreeMap<Date, Double> t2;
+
+        switch (mode) {
+            case 1 -> {
+                t1 = averageByHour(name, "Temperature", startDate, endDate);
+                t2 = averageByHour(name, "Humidity", startDate, endDate);
+            }
+            case 2 -> {
+                t1 = averageByThreeHours(name, "Temperature", startDate, endDate);
+                t2 = averageByThreeHours(name, "Humidity", startDate, endDate);
+            }
+            case 3 -> {
+                t1 = averageBy24Hours(name, "Temperature", startDate, endDate);
+                t2 = averageBy24Hours(name, "Humidity", startDate, endDate);
+            }
+            case 4 -> {
+                t1 = calculateMinMaxValues(name, "Temperature", startDate, endDate);
+                t2 = calculateMinMaxValues(name, "Humidity", startDate, endDate);
+            }
+            default -> {
+                t1 = dataToDouble(name, "Temperature", startDate, endDate);
+                t2 = dataToDouble(name, "Humidity", startDate, endDate);
+            }
+        }
+
+        for (Map.Entry<Date, Double> entry : t1.entrySet()) {
+            Date key = entry.getKey();
+            Double t = entry.getValue();
+            Double h = t2.get(key);
+
+            double value = 1;
+            if (h != null)
+                value *= t - 0.4 * (t - 10) * (1 - h/100);
+            averaged.put(key, value);
+        }
+
+        return averaged;
+    }
+
+    public static HashMap<Date, Double> averagedTemperatureSensing(String name, int mode, Date startDate, Date endDate) {
+        TreeMap<Date, Double> averaged = averagedEffectiveTemperature(name, mode, startDate, endDate);
+
+        HashMap<Date, Double> result = new HashMap<>();
+
+        for (Map.Entry<Date, Double> entry : averaged.entrySet()) {
+            Date key = entry.getKey();
+            Double t = entry.getValue();
+
+            if (t > 30) result.put(key, 8.0);
+            if (t <= 30 && t > 24) result.put(key, 7.0);
+            if (t <= 24 && t > 18) result.put(key, 6.0);
+            if (t <= 18 && t > 12) result.put(key, 5.0);
+            if (t <= 12 && t > 6) result.put(key, 4.0);
+            if (t <= 6 && t > 0) result.put(key, 3.0);
+            if (t <= 0 && t > -12) result.put(key, 2.0);
+            if (t <= -12 && t > -24) result.put(key, 1.0);
+            if (t <= -24 && t > -30) result.put(key, 0.0);
+        }
+
+        return result;
+    }
+
     /**
      * @param name - key of values
      * @param key - name of the value to retrieve

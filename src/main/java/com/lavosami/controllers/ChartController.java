@@ -42,20 +42,39 @@ public class ChartController {
 
         parserMode = selectedParser;
 
-        Map<Date, Double> data = DataBase.averagedValue(selectedDevice, selectedValue, mode, startDate, endDate);
+        if (!Objects.equals(selectedValue, "Temperature sensing")) {
+            Map<Date, Double> data;
+            if (Objects.equals(selectedValue, "Effective temperature")) {
+                data = DataBase.averagedEffectiveTemperature(selectedDevice, mode, startDate, endDate);
+            } else {
+                data = DataBase.averagedValue(selectedDevice, selectedValue, mode, startDate, endDate);
+            }
 
-        xData = data.keySet().stream()
-                .filter(date -> !Double.isNaN(data.get(date)))
-                .map(date -> new SimpleDateFormat("yyyy-MM-dd").format(date))
-                .toList();
+            Map<Date, Double> finalData = data;
+            xData = data.keySet().stream()
+                    .filter(date -> !Double.isNaN(finalData.get(date)))
+                    .map(date -> new SimpleDateFormat("yyyy-MM-dd").format(date))
+                    .toList();
 
-        yData = data.values().stream()
-                .filter(value -> !Double.isNaN(value))
-                .toList();
+            yData = data.values().stream()
+                    .filter(value -> !Double.isNaN(value))
+                    .toList();
 
-        model.addAttribute("xData", xData);
-        model.addAttribute("yData", yData);
+            model.addAttribute("xData", xData);
+            model.addAttribute("yData", yData);
+        } else {
+            Map<Date, Double> data = DataBase.averagedTemperatureSensing(selectedDevice, mode, startDate, endDate);
+            xData = data.keySet().stream()
+                    .map(date -> new SimpleDateFormat("yyyy-MM-dd").format(date))
+                    .toList();
 
+            yData = data.values().stream()
+                    .filter(value -> !Double.isNaN(value))
+                    .toList();
+
+            model.addAttribute("xData", xData);
+            model.addAttribute("yData", yData);
+        }
         return "chart";
     }
 
@@ -67,6 +86,8 @@ public class ChartController {
         values.add("Temperature");
         values.add("Pressure");
         values.add("Humidity");
+        values.add("Effective temperature");
+        values.add("Temperature sensing");
         model.addAttribute("chartValues", values);
         // --------------------------------------------
 
