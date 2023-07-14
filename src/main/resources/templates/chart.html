@@ -84,6 +84,7 @@
 
 <div id="categoryChartContainer" style="width: 100%; min-height: 400px"></div>
 <div id="barChartContainer" style="width: 100%; min-height: 400px"></div>
+<div id="scatterChartContainer" style="width: 100%; min-height: 400px"></div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.2.2/dist/echarts.min.js"></script>
@@ -141,6 +142,33 @@
                             }]
                         };
                         barChart.setOption(barOption);
+
+                        xData = xData.map(dateString => new Date(dateString));
+                        var sortedData = xData.map((value, index) => ({ x: value, y: yData[index] }))
+                                             .sort((a, b) => a.x - b.x);
+                        xData = sortedData.map(data => data.x);
+                        yData = sortedData.map(data => data.y);
+                        var scatterChart = echarts.init(document.getElementById('scatterChartContainer'));
+                        var scatterOption = {
+                          xAxis: {
+                            type: 'time',
+                            axisLabel: {
+                              formatter: function (value) {
+                                return new Date(value).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+                              }
+                            }
+                          },
+                          yAxis: {},
+                          series: [
+                            {
+                              symbolSize: 20,
+                              data: yData.map((value, index) => [xData[index], value]),
+                              type: 'scatter'
+                            }
+                          ]
+                        };
+
+                        scatterOption && scatterChart.setOption(scatterOption);
                     });
                 });
             },
