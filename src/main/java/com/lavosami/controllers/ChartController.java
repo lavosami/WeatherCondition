@@ -4,6 +4,7 @@ import com.lavosami.data.CSV;
 import com.lavosami.data.Data;
 import com.lavosami.data.DataBase;
 import com.lavosami.data.JSON;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,10 +16,7 @@ import static com.lavosami.data.DataBase.dataBase;
 
 @Controller
 public class ChartController {
-    private String name;
-    private String value;
     private String parserMode = "JSON";
-    private int mode;
 
     private List<String> xData = new ArrayList<>();
     private List<Double> yData = new ArrayList<>();
@@ -29,8 +27,11 @@ public class ChartController {
             @RequestParam(name = "value") String selectedValue,
             @RequestParam(name = "parse") String selectedParser,
             @RequestParam(name = "averaging") String selectedAveraging,
+            @RequestParam(name = "startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+            @RequestParam(name = "endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
             Model model) {
 
+        int mode;
         switch (selectedAveraging) {
             case "Average by hour" -> mode = 1;
             case "Average by 3 hours" -> mode = 2;
@@ -39,11 +40,9 @@ public class ChartController {
             default -> mode = 0;
         }
 
-        name = selectedDevice;
-        value = selectedValue;
         parserMode = selectedParser;
 
-        Map<Date, Double> data = DataBase.averagedValue(name, value, mode);
+        Map<Date, Double> data = DataBase.averagedValue(selectedDevice, selectedValue, mode, startDate, endDate);
 
         xData = data.keySet().stream()
                 .filter(date -> !Double.isNaN(data.get(date)))

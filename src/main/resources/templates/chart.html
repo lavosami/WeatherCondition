@@ -69,6 +69,15 @@
             <label th:for="${averaging}" th:text="${averaging}"></label>
         </div>
     </fieldset>
+
+    <fieldset>
+        <legend>Select time range:</legend>
+        <label for="startDate">Start Date:</label>
+        <input type="date" id="startDate" name="startDate">
+        <br>
+        <label for="endDate">End Date:</label>
+        <input type="date" id="endDate" name="endDate">
+    </fieldset>
 </div>
 
 <button id="updateButton">Draw charts</button>
@@ -84,6 +93,8 @@
         var selectedValue = $("input[name='value']:checked").val();
         var selectedParser = $("input[name='parse']:checked").val();
         var selectedAveraging = $("input[name='averaging']:checked").val();
+        var startDate = $("#startDate").val();
+        var endDate = $("#endDate").val();
 
         $.ajax({
             type: "POST",
@@ -92,7 +103,9 @@
                 item: selectedDevice,
                 value: selectedValue,
                 parse: selectedParser,
-                averaging: selectedAveraging
+                averaging: selectedAveraging,
+                startDate: startDate,
+                endDate: endDate
             },
             success: function(data) {
                 $.get('/getXData', function(xData) {
