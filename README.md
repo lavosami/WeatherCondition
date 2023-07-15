@@ -15,5 +15,5 @@ How to work with it:
   2. Go to "localhost:8080/chart"
   3. Check every paramenters you need
   4. Press button "Draw charts"
-    4.1. If you need, repeat actions from 3rd point
+  (If you need, repeat actions from 3rd point)
   5. Enjoy
