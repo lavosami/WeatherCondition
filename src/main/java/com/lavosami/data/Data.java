@@ -6,11 +6,6 @@ public class Data {
     private String name;
     private HashMap<String, Double> data;
 
-    public Data() {
-        name = "deviceName";
-        data = new HashMap<>();
-    }
-
     public Data(String name) {
         setName(name);
         data = new HashMap<>();
